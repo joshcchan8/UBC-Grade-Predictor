@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react"
 
 // a form for the user to fill out grades in previous courses
-export default function Grade() {
+export default function Grade(props) {
 
     const [gradeData, setGradeData] = useState(
         {
@@ -37,6 +37,11 @@ export default function Grade() {
         })
     }
 
+    function submitForm(event) {
+        event.preventDefault()
+        props.getGradeObject(gradeData)
+    }
+
     const yearSelect = yearData.map((entry, index) => {
         return (
             <option key={index} value={entry}>{entry}</option>
@@ -46,8 +51,6 @@ export default function Grade() {
     return (
         <form className="grade--form">
 
-            
-
             {/* <select
                 id="year"
                 value={gradeData.year}
@@ -56,6 +59,7 @@ export default function Grade() {
             >
                 {yearSelect}
             </select> */}
+            <button onClick={submitForm}>CALCULATE</button>
         </form>
     )
 }

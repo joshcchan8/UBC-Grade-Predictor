@@ -4,6 +4,7 @@ import './style.css'
 
 export default function App() {
 
+  const [gradeObjects, setGradeObjects] = useState([])
   const [percentile, setPercentile] = useState(0)
   const [grade, setGrade] = useState(0)
 
@@ -41,6 +42,11 @@ export default function App() {
       .then(data => setGrade(calculateGrade(perc, data)))
   }, [])
 
+  // Gets the grade object from a specific form and adds it to the
+  function getGradeObject(object) {
+    setGradeObjects(prevGradeObjects => [...prevGradeObjects, object])
+    console.log(gradeObjects)
+  }
 
   // calculates the percentile based on the given score a student achieved in a course
   function calculatePercentile(gradesData) {
@@ -142,8 +148,9 @@ export default function App() {
 
   return (
     <div className="App">
-      <p>Hello World</p>
-      <Grade />
+      <Grade
+        getGradeObject={getGradeObject} 
+      />
       <p>{percentile}</p>
       <p>{grade}</p>
     </div>
