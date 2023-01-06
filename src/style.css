@@ -1,0 +1,9 @@
+* {
+    margin: 0;
+    box-sizing: border-box;
+}
+
+.grade--form {
+    height: 200px;
+    background-color: lightblue;
+}

@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react'
+import Grade from './components/Grade'
+import './style.css'
 
 export default function App() {
 
@@ -38,6 +40,7 @@ export default function App() {
       .then(response => response.json())
       .then(data => setGrade(calculateGrade(perc, data)))
   }, [])
+
 
   // calculates the percentile based on the given score a student achieved in a course
   function calculatePercentile(gradesData) {
@@ -140,6 +143,7 @@ export default function App() {
   return (
     <div className="App">
       <p>Hello World</p>
+      <Grade />
       <p>{percentile}</p>
       <p>{grade}</p>
     </div>
