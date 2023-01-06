@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import Grade from './components/Grade'
+import { nanoid } from "nanoid"
 import './style.css'
 
 export default function App() {
@@ -42,10 +43,28 @@ export default function App() {
       .then(data => setGrade(calculateGrade(perc, data)))
   }, [])
 
-  // Gets the grade object from a specific form and adds it to the
-  function getGradeObject(object) {
-    setGradeObjects(prevGradeObjects => [...prevGradeObjects, object])
-    console.log(gradeObjects)
+  // Gets the grade object from a specific form (matching id) and updates/adds it to the
+  function getGradeObject(id, object) {
+    setGradeObjects(function(prevGradeObjects) {
+
+      let exists = false
+      let newGradeObjects = []
+
+      for (let i = 0; i < prevGradeObjects.length; i++) {
+        if (prevGradeObjects[i].id === id) {
+          newGradeObjects.push(object)
+          exists = true
+        } else {
+          newGradeObjects.push(prevGradeObjects[i])
+        }
+      }
+
+      if (!exists) {
+        newGradeObjects.push(object)
+      }
+
+      return newGradeObjects
+    }) 
   }
 
   // calculates the percentile based on the given score a student achieved in a course
@@ -149,8 +168,10 @@ export default function App() {
   return (
     <div className="App">
       <Grade
+        id={nanoid()}
         getGradeObject={getGradeObject} 
       />
+      <p>{gradeObjects.length === 0 ? "" : gradeObjects[0].yearSession}</p>
       <p>{percentile}</p>
       <p>{grade}</p>
     </div>

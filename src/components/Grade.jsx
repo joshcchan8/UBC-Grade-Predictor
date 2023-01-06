@@ -5,27 +5,29 @@ export default function Grade(props) {
 
     const [gradeData, setGradeData] = useState(
         {
+            id: props.id,   
             subject: "",    // "MATH"
             course: "",     // "100"
             grade: "",      // 79
-            session: "",    // "W"
-            year: ""        // "2022"
+            yearSession: "" // "2022W"
         }
     )
 
-    const [yearData, setYearData] = useState([])
+    // const [yearSessionData, setYearSessionData] = useState([])
     // const [subjectData, setSubjectData] = useState([])
     // const [courseData, setCourseData] = useState([])
 
     // Get all yearSessions available
+    // useEffect(() => {
+    //     fetch("https://ubcgrades.com/api/v3/yearsessions/UBCV")
+    //         .then(res => res.json())
+    //         .then(data => setYearSessionData(data))
+    // }, [])
+
+    // send the grade data to the App only when it updates
     useEffect(() => {
-        async function getYearData() {
-            const res = await fetch("https://ubcgrades.com/api/v3/yearsessions/UBCV")
-            const data = await res.json()
-            setYearData(data)
-        }
-        getYearData()
-    }, [])
+        props.getGradeObject(gradeData.id, gradeData)
+    }, [gradeData])
 
     function handleChange(event) {
         const {name, value} = event.target
@@ -37,29 +39,21 @@ export default function Grade(props) {
         })
     }
 
-    function submitForm(event) {
-        event.preventDefault()
-        props.getGradeObject(gradeData)
-    }
-
-    const yearSelect = yearData.map((entry, index) => {
-        return (
-            <option key={index} value={entry}>{entry}</option>
-        )
-    })
+    // function submitForm(event) {
+    //     event.preventDefault()
+    //     props.getGradeObject(gradeData)
+    // }
     
     return (
-        <form className="grade--form">
-
-            {/* <select
-                id="year"
-                value={gradeData.year}
+        <div className="grade--inputs">
+            <input
+                type="text"
+                placeholder="Year Session (ex. 2022W)"
                 onChange={handleChange}
-                name="year"
-            >
-                {yearSelect}
-            </select> */}
-            <button onClick={submitForm}>CALCULATE</button>
-        </form>
+                name="yearSession"
+                value={gradeData.yearSession}
+            />
+            {/* <button onClick={submitForm}>CALCULATE</button> */}
+        </div>
     )
 }
