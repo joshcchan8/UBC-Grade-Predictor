@@ -6,4 +6,10 @@
 .grade--inputs {
     height: 200px;
     background-color: lightblue;
+    display: flex;
+    flex-direction: column;
+}
+
+.grade--inputs > input {
+    width: 150px;
 }
