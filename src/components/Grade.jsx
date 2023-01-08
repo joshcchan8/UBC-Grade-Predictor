@@ -117,7 +117,7 @@ export default function Grade(props) {
                 onChange={handleChange}
                 name="course"
                 value={gradeData.course}
-                pattern="[0-9]{2,3}[A-Z]?"
+                pattern="([0-9]{2}[A-Z]{1})|([0-9]{3}[A-Z]?)"
                 style={determineStyles("course")}
             />
 
