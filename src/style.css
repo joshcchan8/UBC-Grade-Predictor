@@ -1,19 +1,46 @@
 * {
     margin: 0;
     box-sizing: border-box;
-    font-family: sans-serif;
+    font-family: 'Karla', sans-serif;
 }
 
-.grade--inputs {
-    height: 300px;
+body {
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.grade--form {
     background-color: lightblue;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
+    height: 300px;
+    min-width: 800px;
+    max-width: 1000px;
+    border-radius: 20px;
 }
 
-.grade--inputs > input {
+.grade--inputs {
+    background-color: yellow;
+    height: 100px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.grade--span {
+    display: flex;
+    height: 70px;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.grade--span > input {
     width: 150px;
     border: none;
     height: 30px;
@@ -23,4 +50,23 @@
     color: grey;
 }
 
+#calculateButton {
+    background-color: #6666ff;
+    height: 50px;
+    width: 150px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#calculateButton:active {
+    box-shadow: inset 5px 5px 10px -3px rgba(0, 0, 0, 0.7);
+    background-color: #3333ff;
+    border: none;
+    border-radius: 5px;
+}
+
+#calculateButton:disabled {
+    opacity: 60%;
+}
 

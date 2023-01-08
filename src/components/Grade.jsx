@@ -25,6 +25,7 @@ export default function Grade(props) {
         }
     )
 
+    // updates the inputStatus and disabled states when gradeData updates
     useEffect(() => {
 
         let ready = false
@@ -69,6 +70,7 @@ export default function Grade(props) {
         return true
     }
 
+    // determines the styling of input boxes based on their values
     function determineStyles(id) {
         if (inputStatus[id] === 0) {
             return {
@@ -95,57 +97,66 @@ export default function Grade(props) {
     }
     
     return (
-        <form className="grade--inputs">
+        <form className="grade--form">
+            <div className="grade--inputs">
+                <span className="grade--span">
+                    <label htmlFor="subject">Enter Subject</label>
+                    <input
+                        id="subject"
+                        type="text"
+                        placeholder='ex. "MATH"'
+                        onChange={handleChange}
+                        name="subject"
+                        value={gradeData.subject}
+                        pattern="[A-Z]{3,4}"
+                        style={determineStyles("subject")}
+                    />
+                </span>
 
-            <label htmlFor="subject">Enter Subject</label>
-            <input
-                id="subject"
-                type="text"
-                placeholder='ex. "MATH"'
-                onChange={handleChange}
-                name="subject"
-                value={gradeData.subject}
-                pattern="[A-Z]{3,4}"
-                style={determineStyles("subject")}
-            />
+                <span className="grade--span">
+                    <label htmlFor="course">Enter Section</label>
+                    <input 
+                        id="course"
+                        type="text"
+                        placeholder='ex. "101"'
+                        onChange={handleChange}
+                        name="course"
+                        value={gradeData.course}
+                        pattern="([0-9]{2}[A-Z]{1})|([0-9]{3}[A-Z]?)"
+                        style={determineStyles("course")}
+                    />
+                </span>
 
-            <label htmlFor="course">Enter Section</label>
-            <input 
-                id="course"
-                type="text"
-                placeholder='ex. "101"'
-                onChange={handleChange}
-                name="course"
-                value={gradeData.course}
-                pattern="([0-9]{2}[A-Z]{1})|([0-9]{3}[A-Z]?)"
-                style={determineStyles("course")}
-            />
+                <span className="grade--span">
+                    <label htmlFor="grade">Enter Grade</label>
+                    <input
+                        id="grade"
+                        type="number"
+                        min="0"
+                        max="100"
+                        step=".1"
+                        placeholder='ex. "80.1"'
+                        onChange={handleChange}
+                        name="grade"
+                        value={gradeData.grade}
+                        style={determineStyles("grade")}
+                    />
+                </span>
 
-            <label htmlFor="grade">Enter Grade</label>
-            <input
-                id="grade"
-                type="number"
-                min="0"
-                max="100"
-                step=".1"
-                placeholder='ex. "80.1"'
-                onChange={handleChange}
-                name="grade"
-                value={gradeData.grade}
-                style={determineStyles("grade")}
-            />
-
-            <label htmlFor="yearSession">Enter Year Session</label>
-            <input
-                id="yearSession"
-                type="text"
-                placeholder='ex. "2022W"'
-                onChange={handleChange}
-                name="yearSession"
-                value={gradeData.yearSession}
-                pattern="[0-9]{4}(W|S){1}"
-                style={determineStyles("yearSession")}
-            />
+                <span className="grade--span">
+                    <label htmlFor="yearSession">Enter Year Session</label>
+                    <input
+                        id="yearSession"
+                        type="text"
+                        placeholder='ex. "2022W"'
+                        onChange={handleChange}
+                        name="yearSession"
+                        value={gradeData.yearSession}
+                        pattern="[0-9]{4}(W|S){1}"
+                        style={determineStyles("yearSession")}
+                    />
+                </span>
+            </div>
 
             <button id="calculateButton" disabled={disabled} onClick={submitForm}>CALCULATE</button>
         </form>
