@@ -1,15 +1,26 @@
 * {
     margin: 0;
     box-sizing: border-box;
+    font-family: sans-serif;
 }
 
 .grade--inputs {
-    height: 200px;
+    height: 300px;
     background-color: lightblue;
     display: flex;
     flex-direction: column;
+    justify-content: space-around;
+    align-items: center;
 }
 
 .grade--inputs > input {
     width: 150px;
+    border: none;
+    height: 30px;
+    border-radius: 5px;
+    
+    text-indent: 1ch;
+    color: grey;
 }
+
+

@@ -5,8 +5,7 @@ import { validateNumber } from '../script.js'
 export default function Grade(props) {
 
     const [gradeData, setGradeData] = useState(
-        {
-            id: props.id,   
+        { 
             subject: "",    // "MATH"
             course: "",     // "100"
             grade: "",      // 79
@@ -14,31 +13,45 @@ export default function Grade(props) {
         }
     )
 
-    // const [yearSessionData, setYearSessionData] = useState([])
-    // const [subjectData, setSubjectData] = useState([])
-    // const [courseData, setCourseData] = useState([])
+    const [disabled, setDisabled] = useState(true)
 
-    // Get all yearSessions available
-    // useEffect(() => {
-    //     fetch("https://ubcgrades.com/api/v3/yearsessions/UBCV")
-    //         .then(res => res.json())
-    //         .then(data => setYearSessionData(data))
-    // }, [])
+    // 0 means empty, 1 means invalid, 2 means valid
+    const [inputStatus, setInputStatus] = useState (
+        {
+            subject: 0,
+            course: 0,
+            grade: 0,
+            yearSession: 0
+        }
+    )
 
-    // send the grade data to the App only when it updates
-    // useEffect(() => {
-    //     props.getGradeObject(gradeData.id, gradeData)
-    // }, [gradeData])
+    useEffect(() => {
 
-    function handleChange(event) {
-        const {name, value, type} = event.target
-        setGradeData(prevGradeData => {
-            if (type === "number") {
-                return {
-                    ...prevGradeData,
-                    [name]: validateNumber(value)
-                }
+        let ready = false
+        for (const id in gradeData) {
+            if (!validateInput(id) || gradeData[id] === "") {
+                ready = true
             }
+        }
+        setDisabled(ready)
+
+        for (const id in gradeData) {
+            setInputStatus(prevInputStatus => {
+                return {
+                    ...prevInputStatus,
+                    [id]: gradeData[id] === "" ? 0 : (
+                        !validateInput(id) ? 1 : 2
+                    )
+                }
+            })
+        }
+
+    }, [gradeData])
+
+    // update the gradeData object when form inputs change
+    function handleChange(event) {
+        const {name, value} = event.target
+        setGradeData(prevGradeData => {
             return {
                 ...prevGradeData,
                 [name]: value
@@ -46,13 +59,43 @@ export default function Grade(props) {
         })
     }
 
-    // function submitForm(event) {
-    //     event.preventDefault()
-    //     props.getGradeObject(gradeData)
-    // }
+    // validate the form input before submission
+    function validateInput(id) {
+        let input = document.getElementById(id)
+
+        if (!input.checkValidity()) {
+            return false
+        } 
+        return true
+    }
+
+    function determineStyles(id) {
+        if (inputStatus[id] === 0) {
+            return {
+                backgroundColor: "#e6f7ff",
+                outline: "2px solid  #0099ff"
+            }
+        } else if (inputStatus[id] === 1) {
+            return {
+                backgroundColor: "#ffcccc",
+                outline: "2px solid #ff4d4d"
+            }
+        } else {
+            return {
+                backgroundColor: "#b3ffb3",
+                outline: "2px solid #00b300"
+            }
+        }
+    }
+
+    // submit the gradeData to the app component
+    function submitForm(event) {
+        event.preventDefault()
+        props.submitGradeObject(gradeData)
+    }
     
     return (
-        <div className="grade--inputs">
+        <form className="grade--inputs">
 
             <label htmlFor="subject">Enter Subject</label>
             <input
@@ -62,6 +105,8 @@ export default function Grade(props) {
                 onChange={handleChange}
                 name="subject"
                 value={gradeData.subject}
+                pattern="[A-Z]{3,4}"
+                style={determineStyles("subject")}
             />
 
             <label htmlFor="course">Enter Section</label>
@@ -72,6 +117,8 @@ export default function Grade(props) {
                 onChange={handleChange}
                 name="course"
                 value={gradeData.course}
+                pattern="[0-9]{2,3}[A-Z]?"
+                style={determineStyles("course")}
             />
 
             <label htmlFor="grade">Enter Grade</label>
@@ -85,6 +132,7 @@ export default function Grade(props) {
                 onChange={handleChange}
                 name="grade"
                 value={gradeData.grade}
+                style={determineStyles("grade")}
             />
 
             <label htmlFor="yearSession">Enter Year Session</label>
@@ -95,9 +143,11 @@ export default function Grade(props) {
                 onChange={handleChange}
                 name="yearSession"
                 value={gradeData.yearSession}
+                pattern="[0-9]{4}(W|S){1}"
+                style={determineStyles("yearSession")}
             />
 
-            {/* <button onClick={submitForm}>CALCULATE</button> */}
-        </div>
+            <button id="calculateButton" disabled={disabled} onClick={submitForm}>CALCULATE</button>
+        </form>
     )
 }

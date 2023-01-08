@@ -7,7 +7,6 @@ import './style.css'
 export default function App() {
 
   const [gradeObjects, setGradeObjects] = useState([])    // contains all grade data
-  const [forms, setForms] = useState(1)
   const [percentile, setPercentile] = useState(0)
   const [grade, setGrade] = useState(0)
 
@@ -46,59 +45,37 @@ export default function App() {
   }, [])
 
   // Gets the grade object from a specific form (matching id) and updates/adds it to the
-  function getGradeObject(id, object) {
-    setGradeObjects(function(prevGradeObjects) {
-
-      let exists = false
-      let newGradeObjects = []
-
-      for (let i = 0; i < prevGradeObjects.length; i++) {
-        if (prevGradeObjects[i].id === id) {
-          newGradeObjects.push(object)
-          exists = true
-        } else {
-          newGradeObjects.push(prevGradeObjects[i])
-        }
-      }
-
-      if (!exists) {
-        newGradeObjects.push(object)
-      }
-
-      return newGradeObjects
-    }) 
+  function submitGradeObject(object) {
+    // if (validateObject(object)) {
+      setGradeObjects(prevGradeObjects => {
+        return [...prevGradeObjects, object]
+      })
+    // }
   }
 
+  // Validates that the given object represents a real course (valid URL to API)
+  // function validateObject(object) {
 
-  function addForm() {
-    setForms(prevForms => prevForms + 1)
-  }
+  // }
 
-  let formElements = []
-  for (let i = 0; i < forms; i++) {
-    const id = nanoid()
-    formElements.push(
-      <Grade 
-        key={id}
-        id={id}
-        getGradeObject={getGradeObject}
-      />
+  const gradeElements = gradeObjects.map(object => {
+    return (
+      <div key={nanoid()}>
+        <p>{object.subject}</p>
+        <p>{object.course}</p>
+        <p>{object.grade}</p>
+        <p>{object.yearSession}</p>
+      </div>
     )
-  }
+  })
 
 
   return (
     <div className="App">
-      {formElements}
-      {gradeObjects.length !== 0 && 
-        <div>
-          <p>{gradeObjects[0].subject}</p>
-          <p>{gradeObjects[0].course}</p>
-          <p>{gradeObjects[0].grade}</p>
-          <p>{gradeObjects[0].yearSession}</p>
-        </div>
-      }
-      <button onClick={addForm}>ADD NEW FORM</button>
+      <Grade 
+        submitGradeObject={submitGradeObject}
+      />
+      {gradeElements}
       <p>{percentile}</p>
       <p>{grade}</p>
     </div>
