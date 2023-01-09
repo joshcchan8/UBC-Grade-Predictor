@@ -8,59 +8,25 @@ import Prediction from './components/Prediction'
 export default function App() {
 
   const [gradeObjects, setGradeObjects] = useState([])            // contains all grade data
+
   const [predictionObject, setPredictionObject] = useState({      // contains prediction data
     pSubject: "",
     pCourse: ""
   })
+
   const [predictionStatus, setPredictionStatus] = useState({      // contains status of prediction data
     pSubject: 0,
     pCourse: 0
   })
+
   const [readyToCalculate, setReadyToCalculate] = useState(false)
-  const [percentile, setPercentile] = useState(0)
-  const [grade, setGrade] = useState(0)
-
-  // TEST Variables
-  let section = "92C"
-  let subject = "MATH"
-  let course = "100"
-  let score = 59
-
-  // For grade distributions: /api/v3/grades/UBCV/2022S/MATH/100/92C
-  // *** this returns the distribution for a specific section ***
-  // We need to get:
-  // - the year they took the course
-  // - the section they took the course in
-  // - the grade they got in the course (percentage)
-  // This is for determining the percentile a student got in the class when they took it
-  useEffect(function() {
-    fetch(`https://ubcgrades.com/api/v3/grades/UBCV/2022S/${subject}/${course}/${section}`)
-      .then(response => response.json())
-      .then(data => setPercentile(calculatePercentile(data, score)))
-  }, [])
-
-  // TEST Variables
-  let subject2 = "COMM"
-  let course2 = "101"
-  let perc = 79
-
-  // For predicting grades: /api/v3/grades/UBCV/2022S/MATH/100
-  // *** this returns an array of grade distributions for all sections ***
-  // - perc: the cumulative percentile that the student has achieved in previous (similar) courses
-  // - data: array of all grade distribution data
-  useEffect(function() {
-    fetch(`https://ubcgrades.com/api/v3/course-statistics/distributions/UBCV/${subject2}/${course2}`)
-      .then(response => response.json())
-      .then(data => setGrade(calculateGrade(perc, data)))
-  }, [])
+  const [prediction, setPrediction] = useState(0)
 
   // Gets the grade object from a specific form (matching id) and updates/adds it to the
   function submitGradeObject(object) {
-    // if (validateObject(object)) {
-      setGradeObjects(prevGradeObjects => {
-        return [...prevGradeObjects, object]
-      })
-    // }
+    setGradeObjects(prevGradeObjects => {
+      return [...prevGradeObjects, object]
+    })
   }
 
   // Checks to see if there is a course grade to predict and at least 1 previous course has been entered
@@ -80,19 +46,17 @@ export default function App() {
       setReadyToCalculate(false)
     }
 
-    console.log(predictionObject, predictionStatus)
-
   }, [predictionObject, predictionStatus, gradeObjects])
+
+  // If the course prediction changes at any time, then the prediction resets
+  useEffect(function() {
+    setPrediction(0)
+  }, [predictionObject])
 
   function updatePrediction(object, status) {
     setPredictionObject(object)
     setPredictionStatus(status)
   }
-
-  // Validates that the given object represents a real course (valid URL to API)
-  // function validateObject(object) {
-
-  // }
 
   const gradeElements = gradeObjects.map(object => {
     return (
@@ -102,6 +66,78 @@ export default function App() {
       </div>
     )
   })
+
+  async function calculateResult() {
+    let grades = []
+
+    for (const key in gradeObjects) {
+      const gradeObject = gradeObjects[key]
+      const subject = gradeObject.subject
+      const course = gradeObject.course
+      const grade = gradeObject.grade
+      const yearSession = gradeObject.yearSession
+      const percUrl = `https://ubcgrades.com/api/v3/grades/UBCV/${yearSession}/${subject}/${course}`
+
+      const pSubject = predictionObject.pSubject
+      const pCourse = predictionObject.pCourse
+      const gradeUrl = `https://ubcgrades.com/api/v3/course-statistics/distributions/UBCV/${pSubject}/${pCourse}`
+      
+      let percentile = 0
+      let prediction = 0
+
+      try {
+        const response = await fetch(percUrl)
+        if (response.status === 404) {
+          throw new Error("Course does not exist!")
+        } else {
+          const data = await response.json()
+          percentile = calculatePercentile(data, grade)
+        }
+      } catch (error) {
+        console.log(error)
+        return
+      }
+
+      try {
+        const response = await fetch(gradeUrl)
+        if (response.status === 404) {
+          throw new Error("Course does not exist!")
+        } else {
+          const data = await response.json()
+          prediction = calculateGrade(data, percentile)
+        }
+      } catch (error) {
+        console.log(error)
+        return
+      }
+
+      grades.push(prediction)
+    }
+  
+    let sum = 0
+    for (const i in grades) {
+      sum += grades[i]
+    }
+
+    const finalPrediction = (sum / grades.length)
+    setPrediction(finalPrediction)
+  }
+
+  // Determine which label shows at the prediction button
+  // 0 = prediction, 1 = missing course info, 2 = missing form info, 3 = ready to predict
+  function determineLabel() {
+    if (prediction !== 0 && predictionStatus.pSubject === 2 && predictionStatus.pCourse === 2) {
+      return 0
+    } else if (predictionStatus.pSubject === 0 || predictionStatus.pCourse === 0) {
+      return 1
+    } else if (predictionStatus.pSubject === 1 || predictionStatus.pCourse === 1) {
+      return 2
+    } else if (gradeObjects.length === 0) {
+      return 3
+    } else {
+      return 4
+    }
+  }
 
 
   return (
@@ -126,9 +162,12 @@ export default function App() {
         <hr className="divider"/>
         <div className="results">
           <h3 className="header">3. Prediction Results</h3>
-          <button disabled={!readyToCalculate} className="button">CALCULATE PREDICTION</button>
-          {/* <p>{percentile}</p>
-          <p>{grade}</p> */}
+          <button id="calculate-button" onClick={calculateResult} disabled={!readyToCalculate} className="button">CALCULATE PREDICTION</button>
+          {determineLabel() === 0 && <h4 className="prediction-results">Your Predicted Grade for {predictionObject.pSubject + " " + predictionObject.pCourse} is: {prediction.toFixed(1)}%</h4>}
+          {determineLabel() === 1 && <label htmlFor="calculate-button" className="empty-warning">*Field in Grade to Predict is Empty</label>}
+          {determineLabel() === 2 && <label htmlFor="calculate-button" className="invalid-warning">*Field in Grade to Predict is Invalid</label>}
+          {determineLabel() === 3 && <label htmlFor="calculate-button" className="invalid-warning">*Requires At Least One Previous Course Grade</label>}
+          {determineLabel() === 4 && <label htmlFor="calculate-button" className="valid">*Ready to Predict!</label>}
         </div>
       </div>
       <div className="listed-courses">

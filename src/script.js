@@ -1,40 +1,63 @@
 // calculates the percentile based on the given score a student achieved in a course
 function calculatePercentile(data, score) {
-    // If score is less than 50%
-    if (score < 50) {
-        return data.grades["<50%"] / data.reported
-    }
 
-    // Score is greater than or equal to 50%
-    let lowerScores = 0
-    let bounds = ""
+    let percentileArr = [] 
+    for (const key in data) {
 
-    for (const range in data.grades) {
-        if (range[0] === "<") {
-            lowerScores += data.grades[range]
-        } else {
-            if (score > parseInt(range.slice(3, -1)) + 0.49) {
-                lowerScores += data.grades[range]
-            } else if (parseInt(range.slice(0, 2)) - 0.5 <= score &&
-                score <= parseInt(range.slice(3, -1)) + 0.49) {
-                bounds = range
+        let entry = data[key]
+
+        // If score is less than 50%
+        if (score < 50) {
+            return entry.grades["<50%"] === "" ? 1 : entry.grades["<50%"] / entry.reported
+        }
+
+        // Score is greater than or equal to 50%
+        let lowerScores = 0
+        let bounds = ""
+
+        for (const range in entry.grades) {
+            if (typeof entry.grades[range] === "string") {
+                continue
+            } else if (range[0] === "<") {
+                lowerScores += entry.grades[range]
+            } else {
+                if (score > parseInt(range.slice(3, -1)) + 0.49) {
+                    lowerScores += entry.grades[range]
+                } else if (parseInt(range.slice(0, 2)) - 0.5 <= score &&
+                    score <= parseInt(range.slice(3, -1)) + 0.49) {
+                    bounds = range
+                }
             }
         }
+
+        // Calculate percentile
+        let percentile = 0
+
+        if (bounds !== "" && entry.grades[bounds] !== "") {
+            let upperBound = parseInt(bounds.slice(3, -1)) + 0.49
+            let lowerBound = parseInt(bounds.slice(0, 2)) - 0.5
+            let boundedScore = ((score - (lowerBound)) / (upperBound - lowerBound)) * entry.grades[bounds]
+            percentile = ((lowerScores + boundedScore) / entry.reported) * 100
+        } else {
+            percentile = (lowerScores / entry.reported) * 100
+        }
+
+        percentileArr.push(percentile)
     }
 
-    // Calculate percentile
-    let upperBound = parseInt(bounds.slice(3, -1)) + 0.49
-    let lowerBound = parseInt(bounds.slice(0, 2)) - 0.5
+    // calculate average of all section percentiles and return
+    let sum = 0
+    for (const i in percentileArr) {
+        sum += percentileArr[i]
+    }
 
-    let boundedScore = ((score - (lowerBound)) / (upperBound - lowerBound)) * data.grades[bounds]
-    let percentile = ((lowerScores + boundedScore) / data.reported) * 100
-
-    return percentile
+    const finalPercentile = sum / percentileArr.length
+    return  finalPercentile
 }
 
 
 // calculates the grade a student should get in a class based on the given percentile
-function calculateGrade(percentile, data) {
+function calculateGrade(data, percentile) {
 
     // use the 5 most recent entries, or all entries if less than 5 exist
     let maximum = Math.max(data.length - 5, 0)

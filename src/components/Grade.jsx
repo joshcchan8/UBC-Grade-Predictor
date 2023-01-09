@@ -173,7 +173,7 @@ export default function Grade(props) {
                     <input
                         id="yearSession"
                         type="text"
-                        placeholder='Ex. "2022W"'
+                        placeholder='Ex. "2022S"'
                         onChange={handleChange}
                         name="yearSession"
                         value={gradeData.yearSession}
@@ -186,7 +186,11 @@ export default function Grade(props) {
                 </span>
             </div>
 
-            <button id="addScoreButton" className="button" disabled={disabled} onClick={submitForm}>ADD SCORE</button>
+            <div className="buttons">
+                {/* <button className="button">CLEAR COURSES</button> */}
+                <button id="addScoreButton" className="button" disabled={disabled} onClick={submitForm}>ADD SCORE</button>
+            </div>
+            
         </form>
     )
 }

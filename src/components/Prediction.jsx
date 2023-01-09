@@ -3,14 +3,12 @@ import { useEffect, useState } from "react"
 // a form for the user to describe the course they want to predict their grade for
 export default function Prediction(props) {
 
-    const [gradeData, setGradeData] = useState(
+    const [predictionData, setPredictionData] = useState(
         { 
             pSubject: "",    // "MATH"
             pCourse: ""     // "100"
         }
     )
-
-    const [disabled, setDisabled] = useState(true)
 
     // 0 means empty, 1 means invalid, 2 means valid
     const [inputStatus, setInputStatus] = useState (
@@ -20,42 +18,33 @@ export default function Prediction(props) {
         }
     )
 
-    // updates the inputStatus and disabled states when gradeData updates
+    // updates the inputStatus and disabled states when predictionData updates
     useEffect(() => {
 
-        let ready = false
-        for (const id in gradeData) {
-            if (!validateInput(id) || gradeData[id] === "") {
-                ready = true
-            }
-        }
-
-        setDisabled(ready)
-
-        for (const id in gradeData) {
+        for (const id in predictionData) {
             setInputStatus(prevInputStatus => {
                 return {
                     ...prevInputStatus,
-                    [id]: gradeData[id] === "" ? 0 : (
+                    [id]: predictionData[id] === "" ? 0 : (
                         !validateInput(id) ? 1 : 2
                     )
                 }
             })
         }
 
-    }, [gradeData])
+    }, [predictionData])
 
     // updates the status of the calculation button based on validity of inputs
     useEffect(() => {
-        props.updatePrediction(gradeData, inputStatus)
-    }, [gradeData, inputStatus]) 
+        props.updatePrediction(predictionData, inputStatus)
+    }, [predictionData, inputStatus]) 
 
-    // update the gradeData object when form inputs change
+    // update the predictionData object when form inputs change
     function handleChange(event) {
         const {name, value} = event.target
-        setGradeData(prevGradeData => {
+        setPredictionData(prevPredictionData => {
             return {
-                ...prevGradeData,
+                ...prevPredictionData,
                 [name]: value
             }
         })
@@ -91,26 +80,6 @@ export default function Prediction(props) {
         }
     }
 
-     // submit the gradeData to the app component
-    //  function submitForm(event) {
-    //     event.preventDefault()
-    //     props.submitGradeObject(gradeData)
-    //     clearGradeData()
-    // }
-
-    // function clearGradeData() {
-    //     setGradeData({
-    //             pSubject: "",
-    //             pCourse: "",
-    //         })
-
-    //     setInputStatus({
-    //             pSubject: 0,
-    //             pCourse: 0,
-    //         })
-    // }
-
-
     return (
         <div className="prediction--inputs">
             <span className="prediction--span">
@@ -118,10 +87,10 @@ export default function Prediction(props) {
                 <input
                     id="pSubject"
                     type="text"
-                    placeholder='Ex. "MATH"'
+                    placeholder='Ex. "CPSC"'
                     onChange={handleChange}
                     name="pSubject"
-                    value={gradeData.pSubject}
+                    value={predictionData.pSubject}
                     pattern="[A-Z]{3,4}"
                     style={determineStyles("pSubject")}
                 />
@@ -135,10 +104,10 @@ export default function Prediction(props) {
                 <input 
                     id="pCourse"
                     type="text"
-                    placeholder='Ex. "100"'
+                    placeholder='Ex. "221"'
                     onChange={handleChange}
                     name="pCourse"
-                    value={gradeData.pCourse}
+                    value={predictionData.pCourse}
                     pattern="([0-9]{2}[A-Z]{1})|([0-9]{3}[A-Z]?)"
                     style={determineStyles("pCourse")}
                 />
