@@ -93,18 +93,4 @@ function calculateGrade(percentile, data) {
 }
 
 
-// ensures that the number is between 0-100 and has no more than 1 decimal
-function validateNumber(value) {
-    if (value > 100) {
-        return 100
-    } else if (value < 0) {
-        return 0
-    } else if (value.toString().length > 4) {
-        return parseFloat(value.toString().slice(0, 4))
-    } else {
-        return value
-    }
-}
-
-
-export { calculatePercentile, calculateGrade, validateNumber }
+export { calculatePercentile, calculateGrade }
