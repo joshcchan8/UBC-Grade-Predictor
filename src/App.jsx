@@ -19,14 +19,15 @@ export default function App() {
     pCourse: 0
   })
 
-  const [readyToCalculate, setReadyToCalculate] = useState(false)
-  const [prediction, setPrediction] = useState(0)
+  const [readyToCalculate, setReadyToCalculate] = useState(false) // determines whether the calculation button is disabled
+  const [prediction, setPrediction] = useState(0)                 // estimated grade based on inputted course grades
 
   // Gets the grade object from a specific form (matching id) and updates/adds it to the
   function submitGradeObject(object) {
     setGradeObjects(prevGradeObjects => {
       return [...prevGradeObjects, object]
     })
+    setPrediction(0)
   }
 
   // Checks to see if there is a course grade to predict and at least 1 previous course has been entered
@@ -53,9 +54,16 @@ export default function App() {
     setPrediction(0)
   }, [predictionObject])
 
+  // updates the prediction object with the given object and input status
   function updatePrediction(object, status) {
     setPredictionObject(object)
     setPredictionStatus(status)
+  }
+
+  // resets the gradeObjects array to an empty array
+  function clearGradeObjects() {
+    setGradeObjects([])
+    setPrediction(0)
   }
 
   const gradeElements = gradeObjects.map(object => {
@@ -139,7 +147,6 @@ export default function App() {
     }
   }
 
-
   return (
     <div className="App">
       <div className="container">
@@ -154,9 +161,11 @@ export default function App() {
         <div className="previous-courses">
           <h3 className="header">2. Previous Course Grades</h3>
           <p>Enter the grade you received for a specific class, along with the subject, course and year session.</p>
-          <p className="bottom-p">Click the "ADD SCORE" button to include the entered information in the grade prediction.</p>
+          <p>Click the "ADD SCORE" button to include the entered information in the grade prediction.</p>
+          <label className="api-warning">*Based on the API's data, year sessions "2021W" and "2022S" are recommended, otherwise an error may occur.</label>
           <Grade 
             submitGradeObject={submitGradeObject}
+            clearGradeObjects={clearGradeObjects}
           />
         </div>
         <hr className="divider"/>

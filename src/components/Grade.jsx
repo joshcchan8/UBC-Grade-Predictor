@@ -12,7 +12,11 @@ export default function Grade(props) {
         }
     )
 
+    // determines when the addScore button is disabled
     const [disabled, setDisabled] = useState(true)
+
+    // determines when the clearCourses button is disabled
+    const [clearable, setClearable] = useState(false)
 
     // 0 means empty, 1 means invalid, 2 means valid
     const [inputStatus, setInputStatus] = useState (
@@ -33,6 +37,7 @@ export default function Grade(props) {
                 ready = true
             }
         }
+
         setDisabled(ready)
 
         for (const id in gradeData) {
@@ -94,8 +99,10 @@ export default function Grade(props) {
         event.preventDefault()
         props.submitGradeObject(gradeData)
         clearGradeData()
+        setClearable(true)
     }
 
+    // resets the grade data and input status
     function clearGradeData() {
         setGradeData({
                 subject: "",
@@ -110,6 +117,12 @@ export default function Grade(props) {
                 grade: 0,
                 yearSession: 0
             })
+    }
+
+    // clears all courses from those listed
+    function clearCourses() {
+        props.clearGradeObjects()
+        setClearable(false)
     }
     
     return (
@@ -187,8 +200,8 @@ export default function Grade(props) {
             </div>
 
             <div className="buttons">
-                {/* <button className="button">CLEAR COURSES</button> */}
                 <button id="addScoreButton" className="button" disabled={disabled} onClick={submitForm}>ADD SCORE</button>
+                <button id="clearCoursesButton" className="button" disabled={!clearable} onClick={clearCourses}>CLEAR COURSES</button>
             </div>
             
         </form>
